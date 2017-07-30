@@ -10,8 +10,28 @@
         android:id="@+id/connectBluetooth"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="@string/connectBluetooth"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="153dp"
-        android:text="@string/connectBluetooth" />
+        android:layout_marginTop="85dp" />
+
+    <Button
+        android:id="@+id/navigation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/navigation"
+        android:layout_below="@+id/connectBluetooth"
+        android:layout_marginTop="49dp"
+        android:layout_alignStart="@+id/connectBluetooth"
+        android:layout_alignEnd="@+id/connectBluetooth" />
+
+    <Button
+        android:id="@+id/voice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/voice"
+        android:layout_marginTop="49dp"
+        android:layout_below="@+id/navigation"
+        android:layout_alignEnd="@+id/navigation"
+        android:layout_alignStart="@+id/navigation" />
 </RelativeLayout>

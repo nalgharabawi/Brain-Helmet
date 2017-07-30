@@ -1,23 +1,15 @@
 package brain.brain_helmet;
 
-import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,14 +27,10 @@ import java.util.ArrayList;
  */
 
 public class ConnectBluetoothActivity extends ListActivity {
-
     private LeDeviceListAdapter mLeDeviceListAdapter;
-    private String TAG2 = "DevicScanActivity tag: ";
     private BluetoothAdapter mBluetoothAdapter;
     private boolean mScanning;
     private Handler mHandler;
-    SharedPreferences prefs;
-    private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
 
     private static final int REQUEST_ENABLE_BT = 1;
     // Stops scanning after 10 seconds.
@@ -52,11 +40,7 @@ public class ConnectBluetoothActivity extends ListActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connect_bluetooth);
-        getPreference();
         //  getSupportActionBar().setTitle(R.string.title_devices);
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-            checkSDK();
-        }
         mHandler = new Handler();
 
         // Use this check to determine whether BLE is supported on the device.  Then you can
@@ -80,59 +64,38 @@ public class ConnectBluetoothActivity extends ListActivity {
         }
 
     }
-    private SharedPreferences getPreference(){
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        return  prefs;
-    }
+    /*
+        @Override
+        public boolean onCreateOptionsMenu(Menu menu) {
+            getMenuInflater().inflate(R.menu.main, menu);
+            if (!mScanning) {
+                menu.findItem(R.id.menu_stop).setVisible(false);
+                menu.findItem(R.id.menu_scan).setVisible(true);
+                menu.findItem(R.id.menu_refresh).setActionView(null);
+            } else {
+                menu.findItem(R.id.menu_stop).setVisible(true);
+                menu.findItem(R.id.menu_scan).setVisible(false);
+                menu.findItem(R.id.menu_refresh).setActionView(
+                        R.layout.actionbar_indeterminate_progress);
+            }
+            return true;
+        }
+    */
+    /*
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[],
-                                           int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSION_REQUEST_COARSE_LOCATION: {
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d(TAG2, "coarse location permission granted");
-                } else {
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle("Functionality limited");
-                    builder.setMessage("Since location access has not been granted, this app will not be able to discover beacons when in the background.");
-                    builder.setPositiveButton(android.R.string.ok, null);
-                    builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                        }
-                    });
-                    builder.show();
-                }
-
-            }
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_scan:
+                mLeDeviceListAdapter.clear();
+                scanLeDevice(true);
+                break;
+            case R.id.menu_stop:
+                scanLeDevice(false);
+                break;
         }
+        return true;
     }
-    @TargetApi(Build.VERSION_CODES.M)
-    public void checkSDK(){
-        if (true){
-            if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {                final AlertDialog.Builder alert = new AlertDialog.Builder(this);
-                alert.setIcon(R.drawable.dialog_background_light).setTitle("Please grant location access so this app can detect beacons").setPositiveButton("Yes",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int whichButton) {
-                                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
-
-                            }
-
-                        }).setNegativeButton("Cancel",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int whichButton) {
-
-                            }
-                        });
-
-                alert.show();
-            }
-        }
-    }
-
+*/
     @Override
     protected void onResume() {
         super.onResume();
@@ -169,21 +132,17 @@ public class ConnectBluetoothActivity extends ListActivity {
         mLeDeviceListAdapter.clear();
     }
 
-    private void safePreferencesString(String name, String address){
-
-    }
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-
         final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
         if (device == null) return;
         final Intent intent = new Intent(this, BLEDeviceControlActivity.class);
-
+        intent.putExtra(BLEDeviceControlActivity.EXTRAS_DEVICE_NAME, device.getName());
+        intent.putExtra(BLEDeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
         if (mScanning) {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;
         }
-        safePreferencesString(device.getName(), device.getAddress());
         startActivity(intent);
     }
 
