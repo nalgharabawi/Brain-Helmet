@@ -1,0 +1,21 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="brain.brain_helmet.mapFragmentPractice">
+
+    <!-- TODO: Update blank fragment layout -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/hello_blank_fragment" />
+
+    <!-- Example fragment. This can be integrated and annotated
+like any other android Fragment or View widget -->
+    <fragment
+        class="com.here.android.mpa.mapping.MapFragment"
+        android:id="@+id/mapfragment"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/>
+
+</FrameLayout>

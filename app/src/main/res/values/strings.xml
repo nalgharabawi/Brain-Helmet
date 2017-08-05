@@ -14,5 +14,12 @@
     <string name="unknown_characteristic">Unknown characteristic</string>
     <string name="unknown_service">Unknown service</string>
     <string name="connected">Connected</string>
+    <string name="location">Location</string>
+    <string name="destination">Destination</string>
+    <string name="calculate_route">Calculate Route</string>
+    calculate_route
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>
