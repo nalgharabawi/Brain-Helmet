@@ -9,7 +9,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,15 +18,21 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.here.android.mpa.common.GeoCoordinate;
+import com.here.android.mpa.common.GeoPosition;
 import com.here.android.mpa.common.OnEngineInitListener;
+import com.here.android.mpa.common.PositioningManager;
+import com.here.android.mpa.guidance.NavigationManager;
 import com.here.android.mpa.mapping.Map;
 import com.here.android.mpa.mapping.MapFragment;
 import com.here.android.mpa.mapping.MapRoute;
-import com.here.android.mpa.routing.RouteManager;
+import com.here.android.mpa.routing.CoreRouter;
 import com.here.android.mpa.routing.RouteOptions;
 import com.here.android.mpa.routing.RoutePlan;
 import com.here.android.mpa.routing.RouteResult;
+import com.here.android.mpa.routing.RouteWaypoint;
+import com.here.android.mpa.routing.RoutingError;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +45,7 @@ public class practiceMapActivity extends AppCompatActivity {
 
     private double location = 0.0;
     private double destination = 0.0;
+    private boolean paused = false;
 
     /**
      * Permissions that need to be explicitly requested from end user.
@@ -52,6 +58,12 @@ public class practiceMapActivity extends AppCompatActivity {
 
     // map fragment embedded in this activity
     private MapFragment mapFragment = null;
+
+    MapRoute mapRoute = null;
+
+    PositioningManager positioningManager = null;
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,16 +83,45 @@ public class practiceMapActivity extends AppCompatActivity {
                     // retrieve a reference of the map from the map fragment
                     map = mapFragment.getMap();
                     // Set the map center to the Vancouver region (no animation)
-
-                    map.setCenter(new GeoCoordinate(28.5383, -81.3792, 0.0),
+                    map.setCenter(new GeoCoordinate(28.3722884, -81.4004225, 0.0),
                             Map.Animation.NONE);
                     // Set the zoom level to the average between min and max
                     map.setZoomLevel((map.getMaxZoomLevel() + map.getMinZoomLevel()) / 2);
+                    positioningManager = PositioningManager.getInstance();
+                    positioningManager.addListener(new WeakReference<PositioningManager.OnPositionChangedListener>(positionListener));
+                    positioningManager.start(PositioningManager.LocationMethod.GPS_NETWORK);
                 } else {
-                    Log.e(LOG_TAG, "Cannot initialize MapFragment (" + error + ")");
+                    System.out.println("ERROR: Cannot initialize Map Fragment");
                 }
             }
         });
+    }
+
+    public void onResume() {
+        super.onResume();
+        paused = false;
+        if (positioningManager != null) {
+            positioningManager.start(
+                    PositioningManager.LocationMethod.GPS_NETWORK);
+        }
+    }
+
+    public void onPause() {
+        if (positioningManager != null) {
+            positioningManager.stop();
+        }
+        super.onPause();
+        paused = true;
+    }
+
+    public void onDestroy() {
+        if (positioningManager != null) {
+            // Cleanup
+            positioningManager.removeListener(
+                    positionListener);
+        }
+        map = null;
+        super.onDestroy();
     }
 
     /**
@@ -146,12 +187,12 @@ public class practiceMapActivity extends AppCompatActivity {
                 this.getDestination();
                 break;
             case R.id.menu_route:
-                RouteManager rm = new RouteManager();
+                CoreRouter rm = new CoreRouter();
                 RoutePlan routePlan = new RoutePlan();
-                routePlan.addWaypoint(new GeoCoordinate(28.3722884, -81.4004225));
-                routePlan.addWaypoint(new GeoCoordinate(28.3811339, -81.3819982));
-                //routePlan.addWaypoint(new GeoCoordinate(49.1947289, -123.1762924));
-                //routePlan.addWaypoint(new GeoCoordinate(49.1947289, -123.1762924));
+                routePlan.addWaypoint(new RouteWaypoint(positioningManager.getLastKnownPosition().getCoordinate()));
+                routePlan.addWaypoint(new RouteWaypoint(new GeoCoordinate(28.3811339, -81.3819982)));
+//                //routePlan.addWaypoint(new GeoCoordinate(49.1947289, -123.1762924));
+//                //routePlan.addWaypoint(new GeoCoordinate(49.1947289, -123.1762924));
                 RouteOptions routeOptions = new RouteOptions();
                 routeOptions.setTransportMode(RouteOptions.TransportMode.CAR);
                 routeOptions.setRouteType(RouteOptions.Type.FASTEST);
@@ -219,23 +260,49 @@ public class practiceMapActivity extends AppCompatActivity {
 
         alert.show();
     }
-    private class RouteListener implements RouteManager.Listener {
+
+    private class RouteListener implements CoreRouter.Listener {
         // Method defined in Listener
         public void onProgress(int percentage) {
 // Display a message indicating calculation progress
         }
         // Method defined in Listener
-        public void onCalculateRouteFinished(RouteManager.Error error, List<RouteResult> routeResult) {
+        public void onCalculateRouteFinished(List<RouteResult> routeResult, RoutingError error) {
 // If the route was calculated successfully
-            if (error == RouteManager.Error.NONE) {
+            if (error == RoutingError.NONE) {
 // Render the route on the map
-                MapRoute mapRoute = new MapRoute(routeResult.get(0).getRoute());
+                mapRoute = new MapRoute(routeResult.get(0).getRoute());
                 map.addMapObject(mapRoute);
+                map.setMapScheme(Map.Scheme.CARNAV_DAY_GREY);
+                NavigationManager navigationManager = NavigationManager.getInstance();
+                navigationManager.setMap(map);
+                navigationManager.startNavigation(routeResult.get(0).getRoute());
+                map.getPositionIndicator().setVisible(true);
+
             }
             else {
 // Display a message indicating route calculation failure
             }
         }
     }
+    private PositioningManager.OnPositionChangedListener positionListener = new
+            PositioningManager.OnPositionChangedListener() {
+
+
+                public void onPositionUpdated(PositioningManager.LocationMethod method,
+                                              GeoPosition position, boolean isMapMatched) {
+                    // set the center only when the app is in the foreground
+                    // to reduce CPU consumption
+                    if (!paused) {
+                        map.setCenter(position.getCoordinate(),
+                                Map.Animation.NONE);
+                    }
+                }
+
+                public void onPositionFixChanged(PositioningManager.LocationMethod method,
+                                                 PositioningManager.LocationStatus status) {
+                }
+            };
+
 }
 
