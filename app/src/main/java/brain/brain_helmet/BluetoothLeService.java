@@ -372,4 +372,17 @@ public class BluetoothLeService extends Service {
 
         return mBluetoothGatt.getServices();
     }
+
+    public void SendDirections(){
+        UUID service = UUID.fromString("dwwdw");
+        UUID characteristic = UUID.fromString("wdwdw");
+        BluetoothGattCharacteristic charac = returnCharacteristic(service, characteristic);
+        setCharacteristicNotification(charac, true);
+        readCharacteristic(charac);
+        charac.getProperties();
+        setCharacteristicNotification(charac, false);
+        byte[] currentDirection = new byte[1];
+        currentDirection[0] = 1;
+        charac.setValue(currentDirection);
+    }
 }
