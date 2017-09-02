@@ -21,27 +21,28 @@ package brain.brain_helmet;
  */
 //
 
+import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Binder;
+import android.os.IBinder;
 import android.util.Log;
 
-        import android.app.Service;
-        import android.bluetooth.BluetoothAdapter;
-        import android.bluetooth.BluetoothDevice;
-        import android.bluetooth.BluetoothGatt;
-        import android.bluetooth.BluetoothGattCallback;
-        import android.bluetooth.BluetoothGattCharacteristic;
-        import android.bluetooth.BluetoothGattDescriptor;
-        import android.bluetooth.BluetoothGattService;
-        import android.bluetooth.BluetoothManager;
-        import android.bluetooth.BluetoothProfile;
-        import android.content.Context;
-        import android.content.Intent;
-        import android.content.SharedPreferences;
-        import android.os.Binder;
-        import android.os.IBinder;
-
+import java.nio.ByteBuffer;
 import java.util.List;
-        import java.util.UUID;
-        import static android.content.ContentValues.TAG;
+import java.util.UUID;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Service for managing connection and data communication with a GATT server hosted on a
@@ -373,16 +374,55 @@ public class BluetoothLeService extends Service {
         return mBluetoothGatt.getServices();
     }
 
-    public void SendDirections(){
-        UUID service = UUID.fromString("dwwdw");
-        UUID characteristic = UUID.fromString("wdwdw");
+    public void SendDistance(int distance){
+        UUID service = UUID.fromString("5F935BC0-1C05-4719-B7C5-87528F9EAF48");
+        UUID characteristic = UUID.fromString("5F935DFD-1C05-4719-B7C5-87528F9EAF48");
         BluetoothGattCharacteristic charac = returnCharacteristic(service, characteristic);
         setCharacteristicNotification(charac, true);
         readCharacteristic(charac);
         charac.getProperties();
         setCharacteristicNotification(charac, false);
-        byte[] currentDirection = new byte[1];
-        currentDirection[0] = 1;
-        charac.setValue(currentDirection);
+        charac.setValue(ByteBuffer.allocate(4).putInt(distance).array());
     }
+    public void SendTurnDirections(int turn){
+        UUID service = UUID.fromString("5F935BC0-1C05-4719-B7C5-87528F9EAF48");
+        UUID characteristic = UUID.fromString("5F932429-1C05-4719-B7C5-87528F9EAF48");
+        BluetoothGattCharacteristic charac = returnCharacteristic(service, characteristic);
+        setCharacteristicNotification(charac, true);
+        readCharacteristic(charac);
+        charac.getProperties();
+        setCharacteristicNotification(charac, false);
+        charac.setValue(ByteBuffer.allocate(4).putInt(turn).array());
+    }
+    public void SendStreetName(String streetName){
+        UUID service = UUID.fromString("5F935BC0-1C05-4719-B7C5-87528F9EAF48");
+        UUID characteristic = UUID.fromString("5F930048-1C05-4719-B7C5-87528F9EAF48");
+        BluetoothGattCharacteristic charac = returnCharacteristic(service, characteristic);
+        setCharacteristicNotification(charac, true);
+        readCharacteristic(charac);
+        charac.getProperties();
+        setCharacteristicNotification(charac, false);
+        charac.setValue(streetName.getBytes());
+    }
+    public void SendVelocity(int avgVelocity){
+        UUID service = UUID.fromString("5F935BC0-1C05-4719-B7C5-87528F9EAF48");
+        UUID characteristic = UUID.fromString("5F93C1AD-1C05-4719-B7C5-87528F9EAF48");
+        BluetoothGattCharacteristic charac = returnCharacteristic(service, characteristic);
+        setCharacteristicNotification(charac, true);
+        readCharacteristic(charac);
+        charac.getProperties();
+        setCharacteristicNotification(charac, false);
+        charac.setValue(ByteBuffer.allocate(4).putInt(avgVelocity).array());
+    }
+    public void SendArrivalTime(int arrivalTime){
+        UUID service = UUID.fromString("5F935BC0-1C05-4719-B7C5-87528F9EAF48");
+        UUID characteristic = UUID.fromString("5F93158D-1C05-4719-B7C5-87528F9EAF48");
+        BluetoothGattCharacteristic charac = returnCharacteristic(service, characteristic);
+        setCharacteristicNotification(charac, true);
+        readCharacteristic(charac);
+        charac.getProperties();
+        setCharacteristicNotification(charac, false);
+        charac.setValue(ByteBuffer.allocate(4).putInt(arrivalTime).array());
+    }
+
 }

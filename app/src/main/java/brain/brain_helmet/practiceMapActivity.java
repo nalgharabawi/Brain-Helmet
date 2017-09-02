@@ -1,9 +1,15 @@
 package brain.brain_helmet;
 
 import android.Manifest;
+import android.content.ComponentName;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -51,13 +57,14 @@ public class practiceMapActivity extends AppCompatActivity {
 
     // permissions request code
     private final static int REQUEST_CODE_ASK_PERMISSIONS = 1;
-
+    SharedPreferences prefs = null;
     private double location = 0.0;
     private double destination = 0.0;
     private boolean paused = false;
     private GeoBoundingBox m_geoBoundingBox;
     private VoiceCatalog voiceCatalog = null;
-
+    private BluetoothLeService mBluetoothLeService;
+    private List<Maneuver> turns = null;
 
     /**
      * Permissions that need to be explicitly requested from end user.
@@ -76,13 +83,61 @@ public class practiceMapActivity extends AppCompatActivity {
     PositioningManager positioningManager = null;
     NavigationManager navigationManager = null;
 
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
+
+            Log.d(TAG, mBluetoothLeService +  " sir");
+            if (!mBluetoothLeService.initialize()) {
+                Log.e(TAG, "Unable to initialize Bluetooth");
+                finish();
+            }
+            Log.d(TAG, mBluetoothLeService +  " sir");
+            String mDeviceAddress = getPreferencesString(PreferenceValuesEnum.SAVEADDRESS.name());
+            String mDeviceName =  getPreferencesString(PreferenceValuesEnum.SAVENAME.name());
+
+            // Automatically connects to the device upon successful start-up initialization.
+            mBluetoothLeService.connect(mDeviceAddress);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mBluetoothLeService = null;
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         checkPermissions();
-        Log.v(TAG, "TestTest");
+        prefs = getPreference();
+        if (getPreferencesString(PreferenceValuesEnum.SAVEBLUETOOTH.name()).equals(PreferenceValuesEnum.SAVEBLUETOOTH.name())) {
+            Intent i = new Intent(practiceMapActivity.this, BluetoothLeService.class);
+            bindService(i, mServiceConnection, BIND_AUTO_CREATE);
+        }
+        //Log.v(TAG, "TestTest");
+    }
+
+    private SharedPreferences getPreference(){
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        return  prefs;
+    }
+
+    private String getPreferencesString(String get){
+        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        //   prefs = getPreference();
+        if (get.equals(PreferenceValuesEnum.SAVENAME.name())) {
+            return prefs.getString(get, "");
+        }
+        if (get.equals(PreferenceValuesEnum.SAVEADDRESS.name())) {
+            return prefs.getString(get, "");
+        }
+        if (get.equals(PreferenceValuesEnum.SAVEBLUETOOTH.name())) {
+            return prefs.getString(get, "");
+        }
+        return null;
     }
 
     private void initialize() {
@@ -119,14 +174,18 @@ public class practiceMapActivity extends AppCompatActivity {
             positioningManager.start(
                     PositioningManager.LocationMethod.GPS_NETWORK);
         }
+        if (getPreferencesString(PreferenceValuesEnum.SAVEBLUETOOTH.name()).equals(PreferenceValuesEnum.SAVEBLUETOOTH.name())) {
+            Intent i = new Intent(practiceMapActivity.this, BluetoothLeService.class);
+            bindService(i, mServiceConnection, BIND_AUTO_CREATE);
+        }
     }
 
     public void onPause() {
         if (positioningManager != null) {
-            positioningManager.stop();
+            //positioningManager.stop();
         }
         super.onPause();
-        paused = true;
+        //paused = true;
     }
 
     public void onDestroy() {
@@ -136,6 +195,8 @@ public class practiceMapActivity extends AppCompatActivity {
                     positionListener);
         }
         map = null;
+        if (mBluetoothLeService!=null)
+            unbindService(mServiceConnection);
         super.onDestroy();
     }
 
@@ -297,10 +358,10 @@ public class practiceMapActivity extends AppCompatActivity {
                         Map.MOVE_PRESERVE_ORIENTATION);
 
                 //map.setMapScheme(Map.Scheme.CARNAV_DAY_GREY);
-                List<Maneuver> turns = route.getManeuvers();
-                for (int i = 0; i<turns.size(); i++){
-                    Log.v(TAG, "We want to turn : " + turns.get(i).getTurn() + " on road " + turns.get(i).getNextRoadName() + " The distance is " + turns.get(i).getDistanceToNextManeuver() + " The value of the turn is " + turns.get(i).getTurn().value() + " The estimated time is: " + navigationManager.getEta(true, Route.TrafficPenaltyMode.OPTIMAL));
-                }
+                turns = route.getManeuvers();
+//                for (int i = 0; i<turns.size(); i++){
+//                    Log.v(TAG, "We want to turn : " + turns.get(i).getTurn() + " on road " + turns.get(i).getNextRoadName() + " The distance is " + turns.get(i).getDistanceToNextManeuver() + " The value of the turn is " + turns.get(i).getTurn().value() + " The estimated time is: " + navigationManager.getEta(true, Route.TrafficPenaltyMode.OPTIMAL));
+//                }
                 map.getPositionIndicator().setVisible(true);
                 navigationManager.setMap(map);
                 updateInstalledVoices();
@@ -311,7 +372,8 @@ public class practiceMapActivity extends AppCompatActivity {
                 m_geoBoundingBox = route.getBoundingBox();
                 navigationManager.getEta(false, Route.TrafficPenaltyMode.OPTIMAL);
                 navigationManager.startNavigation(route);
-                Log.v(TAG, " The ETA is: " + navigationManager.getTta(Route.TrafficPenaltyMode.OPTIMAL, false) + " " + route.getTta(Route.TrafficPenaltyMode.OPTIMAL,0));
+
+                //Log.v(TAG, " The ETA is: " + navigationManager.getTta(Route.TrafficPenaltyMode.OPTIMAL, false) + " " + route.getTta(Route.TrafficPenaltyMode.OPTIMAL,0));
 
             }
             else {
@@ -375,9 +437,9 @@ public class practiceMapActivity extends AppCompatActivity {
 
                     // debug print of the already locally installed skins
                     Log.d(TAG, "# of local skins: " + localInstalledSkins.size());
-                    for (VoiceSkin voice : localInstalledSkins) {
-                        Log.d(TAG, "ID: " + voice.getId() + " Language: " + voice.getLanguage());
-                    }
+//                    for (VoiceSkin voice : localInstalledSkins) {
+//                        Log.d(TAG, "ID: " + voice.getId() + " Language: " + voice.getLanguage());
+//                    }
 
                     downloadVoice(206);
                 }
@@ -510,16 +572,24 @@ public class practiceMapActivity extends AppCompatActivity {
                         position.getCoordinate();
                         position.getHeading();
                         position.getSpeed();
-                        navigationManager.getTta(Route.TrafficPenaltyMode.DISABLED, true);
-                        navigationManager.getDestinationDistance();
+                        //navigationManager.getTta(Route.TrafficPenaltyMode.DISABLED, true);
+                        //navigationManager.getDestinationDistance();
                         Date destinateTime = navigationManager.getEta(true, Route.TrafficPenaltyMode.OPTIMAL);
                         Date currentTime = Calendar.getInstance().getTime();
                         long diff = destinateTime.getTime() - currentTime.getTime();
                         long minutes = diff / 60000;
                         long hours = minutes / 60;
-                        Log.v(TAG, "The ETA is: " + hours + ":" + minutes);
-                        Log.v(TAG, " The ETA is: " + navigationManager.getEta(true, Route.TrafficPenaltyMode.OPTIMAL));
+                        if (mBluetoothLeService != null && navigationManager.getNextManeuver() != null) {
 
+                            mBluetoothLeService.SendArrivalTime((int) minutes);
+                            mBluetoothLeService.SendDistance((int) navigationManager.getDestinationDistance());
+                            mBluetoothLeService.SendStreetName(navigationManager.getNextManeuver().getNextRoadName());
+                            mBluetoothLeService.SendTurnDirections(navigationManager.getNextManeuver().getTurn().value());
+                            mBluetoothLeService.SendVelocity((int) navigationManager.getAverageSpeed());
+                        }
+                        //Log.v(TAG,  (int) minutes + "  " +  (int)navigationManager.getDestinationDistance() + "  " + navigationManager.getNextManeuver().getNextRoadName() + " " + navigationManager.getNextManeuver().getTurn().value() + "  " + (int)navigationManager.getAverageSpeed());
+                        //Log.v(TAG, " The ETA is: " + navigationManager.getEta(true, Route.TrafficPenaltyMode.OPTIMAL));
+                        Log.v(TAG, "Running while paused...");
                         //// navigationManager.repeatVoiceCommand();
                     }
                 }

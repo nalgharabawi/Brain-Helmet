@@ -1,0 +1,37 @@
+1. Get Service/Characteristics.
+	a. Service 1(int)
+		I. Send Distance
+		II. Send Turns
+		III. Send current Estimated time of arrival
+		IV. average speed
+	b. Service 2 (string)
+		I. Send road name
+		
+		
+Enums for turns values...
+
+public static enum Turn {
+        UNDEFINED(0),
+        NO_TURN(1),
+        KEEP_MIDDLE(2),
+        KEEP_RIGHT(3),
+        LIGHT_RIGHT(4),
+        QUITE_RIGHT(5),
+        HEAVY_RIGHT(6),
+        KEEP_LEFT(7),
+        LIGHT_LEFT(8),
+        QUITE_LEFT(9),
+        HEAVY_LEFT(10),
+        RETURN(11),
+        ROUNDABOUT_1(12),
+        ROUNDABOUT_2(13),
+        ROUNDABOUT_3(14),
+        ROUNDABOUT_4(15),
+        ROUNDABOUT_5(16),
+        ROUNDABOUT_6(17),
+        ROUNDABOUT_7(18),
+        ROUNDABOUT_8(19),
+        ROUNDABOUT_9(20),
+        ROUNDABOUT_10(21),
+        ROUNDABOUT_11(22),
+        ROUNDABOUT_12(23);

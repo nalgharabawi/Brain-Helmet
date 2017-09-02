@@ -7,9 +7,11 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -143,6 +145,11 @@ public class ConnectBluetoothActivity extends ListActivity {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;
         }
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(PreferenceValuesEnum.SAVENAME.name(), device.getName()).apply();
+        editor.putString(PreferenceValuesEnum.SAVEADDRESS.name(), device.getAddress()).apply();
+        editor.putString(PreferenceValuesEnum.SAVEBLUETOOTH.name(), PreferenceValuesEnum.SAVEBLUETOOTH.name()).apply();
         startActivity(intent);
     }
 
