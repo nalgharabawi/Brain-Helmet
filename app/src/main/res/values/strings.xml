@@ -18,6 +18,7 @@
     <string name="destination">Destination</string>
     <string name="calculate_route">Calculate Route</string>
     <string name="helloworld">Hello World</string>
+    <string name="returnToMain">return</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

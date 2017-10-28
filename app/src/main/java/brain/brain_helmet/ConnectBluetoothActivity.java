@@ -260,6 +260,7 @@ public class ConnectBluetoothActivity extends ListActivity {
         TextView deviceName;
         TextView deviceAddress;
     }
+
 //    @Override
 //    public boolean onCreateOptionsMenu(Menu menu) {
 //        MenuInflater inflater = getMenuInflater();
@@ -270,13 +271,13 @@ public class ConnectBluetoothActivity extends ListActivity {
 //    public boolean onOptionsItemSelected(MenuItem item) {
 //        // Handle item selection
 //        switch (item.getItemId()) {
-//            case R.id.menu_scan:
-//                mLeDeviceListAdapter.clear();
-//                scanLeDevice(true);
+//            case R.id.returnToMain:
+//                Intent nextActivity = new Intent(ConnectBluetoothActivity.this,MainActivity.class);
+//                startActivity(nextActivity);
 //                return true;
-//            case R.id.menu_stop:
-//                scanLeDevice(false);
-//                return true;
+//       //     case R.id.menu_stop:
+//       //         scanLeDevice(false);
+//       //         return true;
 //            default:
 //                return super.onOptionsItemSelected(item);
 //        }

@@ -34,6 +34,9 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
@@ -333,24 +336,27 @@ public class BLEDeviceControlActivity extends Activity {
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
         return intentFilter;
     }
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        MenuInflater inflater = getMenuInflater();
-//        inflater.inflate(R.menu.gatt_services, menu);
-//
-//        return true;
-//    }
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle item selection
-//        switch (item.getItemId()) {
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
 //            case R.id.menu_connect:
 //                mBluetoothLeService.connect(mDeviceAddress);
 //                return true;
 //            case R.id.menu_disconnect:
 //                mBluetoothLeService.disconnect();
 //                return true;
-//            default:
-//                return super.onOptionsItemSelected(item);
-//        }
-//    }
+            case R.id.returnToMain:
+                Intent nextActivity = new Intent(BLEDeviceControlActivity.this,MainActivity.class);
+                startActivity(nextActivity);
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }

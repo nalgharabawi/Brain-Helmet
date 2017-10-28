@@ -42,8 +42,6 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.UUID;
 
-import static android.content.ContentValues.TAG;
-
 /**
  * Service for managing connection and data communication with a GATT server hosted on a
  * given Bluetooth LE device.
@@ -341,25 +339,6 @@ public class BluetoothLeService extends Service {
      * @param characteristic Characteristic to act on.
      * @param enabled        If true, enable notification.  False otherwise.
      */
-    public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
-                                              boolean enabled) {
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-            Log.w(TAG, "BluetoothAdapter not initialized");
-            return;
-        }
-        //  Log.i(TAG2, mBluetoothAdapter + "");
-        //  Log.i(TAG2, mBluetoothGatt + "");
-        //  Log.i(TAG2, characteristic + "");
-        //  Log.i(TAG2, enabled + "");
-        mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
-        // Log.i(TAG2, mBluetoothAdapter + "");
-        if (DATA_SERVICE.equals(characteristic.getUuid())) {
-            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
-                    UUID.fromString(SampleGattAttributes.data));
-            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            mBluetoothGatt.writeDescriptor(descriptor);
-        }
-    }
 
 
     /**
@@ -373,16 +352,25 @@ public class BluetoothLeService extends Service {
 
         return mBluetoothGatt.getServices();
     }
+    public boolean setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
+                                                 boolean enable) {
+
+        mBluetoothGatt.setCharacteristicNotification(characteristic, enable);
+        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"));
+        descriptor.setValue(enable ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : new byte[] { 0x01, 0x00 });
+        descriptor.setValue(enable ? BluetoothGattDescriptor.ENABLE_INDICATION_VALUE : new byte[] { 0x01, 0x00 });
+        return mBluetoothGatt.writeDescriptor(descriptor); //descriptor write operation successfully started?
+    }
 
     public void SendDistance(int distance){
-        UUID service = UUID.fromString("5F935BC0-1C05-4719-B7C5-87528F9EAF48");
-        UUID characteristic = UUID.fromString("5F935DFD-1C05-4719-B7C5-87528F9EAF48");
+        UUID service = UUID.fromString("5f935bc0-1c05-4719-b7c5-87528f9eaf48");
+        //UUID characteristic = UUID.fromString("00000048-0000-1000-8000-00805F9B34FB");
+        UUID characteristic = UUID.fromString("5f93c1ad-1c05-4719-b7c5-87528f9eaf48");
         BluetoothGattCharacteristic charac = returnCharacteristic(service, characteristic);
-        setCharacteristicNotification(charac, true);
         readCharacteristic(charac);
         charac.getProperties();
-        setCharacteristicNotification(charac, false);
-        charac.setValue(ByteBuffer.allocate(4).putInt(distance).array());
+        //charac.setValue(ByteBuffer.allocate(4).putInt(distance).array());
+        charac.setValue(new byte[1]);
     }
     public void SendTurnDirections(int turn){
         UUID service = UUID.fromString("5F935BC0-1C05-4719-B7C5-87528F9EAF48");
@@ -405,14 +393,15 @@ public class BluetoothLeService extends Service {
         charac.setValue(streetName.getBytes());
     }
     public void SendVelocity(int avgVelocity){
-        UUID service = UUID.fromString("5F935BC0-1C05-4719-B7C5-87528F9EAF48");
+        UUID service = UUID.fromString("5f935bc0-1c05-4719-b7c5-87528f9eaf48");
+        //UUID characteristic = UUID.fromString("5F93C1AD-1C05-4719-B7C5-87528F9EAF48");
+
+        //UUID characteristic = UUID.fromString("00000048-0000-1000-8000-00805F9B34FB");
         UUID characteristic = UUID.fromString("5F93C1AD-1C05-4719-B7C5-87528F9EAF48");
         BluetoothGattCharacteristic charac = returnCharacteristic(service, characteristic);
-        setCharacteristicNotification(charac, true);
-        readCharacteristic(charac);
-        charac.getProperties();
-        setCharacteristicNotification(charac, false);
         charac.setValue(ByteBuffer.allocate(4).putInt(avgVelocity).array());
+        boolean status = mBluetoothGatt.writeCharacteristic(charac);
+        Log.d("check", status + " after sent");
     }
     public void SendArrivalTime(int arrivalTime){
         UUID service = UUID.fromString("5F935BC0-1C05-4719-B7C5-87528F9EAF48");

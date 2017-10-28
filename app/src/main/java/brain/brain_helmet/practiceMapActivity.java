@@ -1,6 +1,8 @@
 package brain.brain_helmet;
 
 import android.Manifest;
+import android.app.Activity;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,7 +16,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -51,8 +52,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
-public class practiceMapActivity extends AppCompatActivity {
+public class practiceMapActivity extends Activity {
     private static final String TAG = "practice";
 
     // permissions request code
@@ -100,6 +102,12 @@ public class practiceMapActivity extends AppCompatActivity {
 
             // Automatically connects to the device upon successful start-up initialization.
             mBluetoothLeService.connect(mDeviceAddress);
+
+            UUID services = UUID.fromString("5f935bc0-1c05-4719-b7c5-87528f9eaf48");
+            //UUID characteristic = UUID.fromString("00000048-0000-1000-8000-00805F9B34FB");
+            UUID characteristic = UUID.fromString("5f93c1ad-1c05-4719-b7c5-87528f9eaf48");
+            BluetoothGattCharacteristic charac = mBluetoothLeService.returnCharacteristic(services, characteristic);
+            mBluetoothLeService.setCharacteristicNotification(charac, true);
         }
 
         @Override
@@ -581,11 +589,16 @@ public class practiceMapActivity extends AppCompatActivity {
                         long hours = minutes / 60;
                         if (mBluetoothLeService != null && navigationManager.getNextManeuver() != null) {
 
-                            mBluetoothLeService.SendArrivalTime((int) minutes);
-                            mBluetoothLeService.SendDistance((int) navigationManager.getDestinationDistance());
-                            mBluetoothLeService.SendStreetName(navigationManager.getNextManeuver().getNextRoadName());
-                            mBluetoothLeService.SendTurnDirections(navigationManager.getNextManeuver().getTurn().value());
+//                            mBluetoothLeService.SendArrivalTime((int) minutes);
+                             //mBluetoothLeService.SendDistance((int) navigationManager.getDestinationDistance());
+//                            mBluetoothLeService.SendStreetName(navigationManager.getNextManeuver().getNextRoadName());
+//                            mBluetoothLeService.SendTurnDirections(navigationManager.getNextManeuver().getTurn().value());
                             mBluetoothLeService.SendVelocity((int) navigationManager.getAverageSpeed());
+                            try {
+                                Thread.sleep(500);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
                         //Log.v(TAG,  (int) minutes + "  " +  (int)navigationManager.getDestinationDistance() + "  " + navigationManager.getNextManeuver().getNextRoadName() + " " + navigationManager.getNextManeuver().getTurn().value() + "  " + (int)navigationManager.getAverageSpeed());
                         //Log.v(TAG, " The ETA is: " + navigationManager.getEta(true, Route.TrafficPenaltyMode.OPTIMAL));

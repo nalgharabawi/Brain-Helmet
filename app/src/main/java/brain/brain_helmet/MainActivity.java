@@ -1,5 +1,6 @@
 package brain.brain_helmet;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -7,12 +8,11 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
     private final String TAG = "MainActivity";
     Button connectBluetooth;
     Button navigation;
@@ -39,8 +39,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent nextActivity = new Intent(MainActivity.this,practiceMapActivity.class);
                 startActivity(nextActivity);
-
-
             }
         });
         prefs = getPreference();
