@@ -38,7 +38,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import java.nio.ByteBuffer;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.UUID;
 
@@ -367,51 +367,86 @@ public class BluetoothLeService extends Service {
         //UUID characteristic = UUID.fromString("00000048-0000-1000-8000-00805F9B34FB");
         UUID characteristic = UUID.fromString("5f93c1ad-1c05-4719-b7c5-87528f9eaf48");
         BluetoothGattCharacteristic charac = returnCharacteristic(service, characteristic);
-        readCharacteristic(charac);
-        charac.getProperties();
-        //charac.setValue(ByteBuffer.allocate(4).putInt(distance).array());
-        charac.setValue(new byte[1]);
+        charac.setValue(integerToHex(distance));
+        boolean status = mBluetoothGatt.writeCharacteristic(charac);
     }
     public void SendTurnDirections(int turn){
         UUID service = UUID.fromString("5F935BC0-1C05-4719-B7C5-87528F9EAF48");
         UUID characteristic = UUID.fromString("5F932429-1C05-4719-B7C5-87528F9EAF48");
         BluetoothGattCharacteristic charac = returnCharacteristic(service, characteristic);
-        setCharacteristicNotification(charac, true);
-        readCharacteristic(charac);
-        charac.getProperties();
-        setCharacteristicNotification(charac, false);
-        charac.setValue(ByteBuffer.allocate(4).putInt(turn).array());
+        charac.setValue(integerToHex(turn));
+        boolean status = mBluetoothGatt.writeCharacteristic(charac);
     }
     public void SendStreetName(String streetName){
         UUID service = UUID.fromString("5F935BC0-1C05-4719-B7C5-87528F9EAF48");
         UUID characteristic = UUID.fromString("5F930048-1C05-4719-B7C5-87528F9EAF48");
         BluetoothGattCharacteristic charac = returnCharacteristic(service, characteristic);
-        setCharacteristicNotification(charac, true);
-        readCharacteristic(charac);
-        charac.getProperties();
-        setCharacteristicNotification(charac, false);
-        charac.setValue(streetName.getBytes());
+        boolean status = mBluetoothGatt.writeCharacteristic(charac);
     }
     public void SendVelocity(int avgVelocity){
         UUID service = UUID.fromString("5f935bc0-1c05-4719-b7c5-87528f9eaf48");
-        //UUID characteristic = UUID.fromString("5F93C1AD-1C05-4719-B7C5-87528F9EAF48");
-
-        //UUID characteristic = UUID.fromString("00000048-0000-1000-8000-00805F9B34FB");
         UUID characteristic = UUID.fromString("5F93C1AD-1C05-4719-B7C5-87528F9EAF48");
         BluetoothGattCharacteristic charac = returnCharacteristic(service, characteristic);
-        charac.setValue(ByteBuffer.allocate(4).putInt(avgVelocity).array());
+
+        integerToHex(0);
+        integerToHex(10);
+        integerToHex(110);
+        integerToHex(540);
+        integerToHex(1310);
+        integerToHex(4140);
+        integerToHex(0121);
+        byte[] byteArray = integerToHex(avgVelocity);
+        charac.setValue(integerToHex(avgVelocity));
         boolean status = mBluetoothGatt.writeCharacteristic(charac);
         Log.d("check", status + " after sent");
+        Log.d("check", "The velocity is: " + avgVelocity);
+        String array = "";
+        for (int i = 0; i < byteArray.length; i++ ){
+            array += byteArray[i] + " ";
+        }
+        Log.d("check", "The byte array we are sending is " + array);
+        Log.d("check", "Casting the value as int gets... " + new BigInteger(byteArray).intValue());
     }
     public void SendArrivalTime(int arrivalTime){
         UUID service = UUID.fromString("5F935BC0-1C05-4719-B7C5-87528F9EAF48");
         UUID characteristic = UUID.fromString("5F93158D-1C05-4719-B7C5-87528F9EAF48");
         BluetoothGattCharacteristic charac = returnCharacteristic(service, characteristic);
-        setCharacteristicNotification(charac, true);
-        readCharacteristic(charac);
-        charac.getProperties();
-        setCharacteristicNotification(charac, false);
-        charac.setValue(ByteBuffer.allocate(4).putInt(arrivalTime).array());
+        byte[] byteArray = integerToHex(arrivalTime);
+        charac.setValue(integerToHex(arrivalTime));
+        boolean status = mBluetoothGatt.writeCharacteristic(charac);
+    }
+    public static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len/2];
+
+        for(int i = 0; i < len; i+=2){
+            data[i/2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i+1), 16));
+        }
+
+        return data;
+    }
+    private byte[] integerToHex(int num){
+        int origin = num;
+        byte one = 48;
+        one = (byte)(num%10 + 48);
+        num = (num > 0) ? num/10 : 0;
+
+        byte ten = 48;
+
+        ten = (byte)(num%10 + 48);
+        num = (num > 0) ? num/10 : 0;
+
+        byte hundred = 48;
+
+        hundred = (byte)(num%10 + 48);
+        num = (num > 0) ? num/10 : 0;
+
+        byte thousand = (byte)(num%10 + 48);
+
+
+         Log.d("checkbyte","The Number is " + origin + " The bytes are " + thousand + " "  + hundred + " " + ten + " " + one);
+
+        return new byte[]{thousand, hundred, ten, one};
     }
 
 }

@@ -13,6 +13,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -261,25 +264,24 @@ public class ConnectBluetoothActivity extends ListActivity {
         TextView deviceAddress;
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        MenuInflater inflater = getMenuInflater();
-//        inflater.inflate(R.menu.main, menu);
-//        return true;
-//    }
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle item selection
-//        switch (item.getItemId()) {
-//            case R.id.returnToMain:
-//                Intent nextActivity = new Intent(ConnectBluetoothActivity.this,MainActivity.class);
-//                startActivity(nextActivity);
-//                return true;
-//       //     case R.id.menu_stop:
-//       //         scanLeDevice(false);
-//       //         return true;
-//            default:
-//                return super.onOptionsItemSelected(item);
-//        }
-//    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_scan, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.menu_scan:
+                scanLeDevice(true);
+                return true;
+            case R.id.menu_stop:
+                scanLeDevice(false);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }

@@ -589,13 +589,13 @@ public class practiceMapActivity extends Activity {
                         long hours = minutes / 60;
                         if (mBluetoothLeService != null && navigationManager.getNextManeuver() != null) {
 
-//                            mBluetoothLeService.SendArrivalTime((int) minutes);
-                             //mBluetoothLeService.SendDistance((int) navigationManager.getDestinationDistance());
-//                            mBluetoothLeService.SendStreetName(navigationManager.getNextManeuver().getNextRoadName());
-//                            mBluetoothLeService.SendTurnDirections(navigationManager.getNextManeuver().getTurn().value());
+                            mBluetoothLeService.SendArrivalTime((int) minutes);
+                             mBluetoothLeService.SendDistance((int) navigationManager.getDestinationDistance());
+                            //mBluetoothLeService.SendStreetName(navigationManager.getNextManeuver().getNextRoadName());
+                            mBluetoothLeService.SendTurnDirections(navigationManager.getNextManeuver().getTurn().value());
                             mBluetoothLeService.SendVelocity((int) navigationManager.getAverageSpeed());
                             try {
-                                Thread.sleep(500);
+                                Thread.sleep(5);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
