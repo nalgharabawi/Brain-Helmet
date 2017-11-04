@@ -38,7 +38,8 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.List;
 import java.util.UUID;
 
@@ -369,6 +370,7 @@ public class BluetoothLeService extends Service {
         BluetoothGattCharacteristic charac = returnCharacteristic(service, characteristic);
         charac.setValue(integerToHex(distance));
         boolean status = mBluetoothGatt.writeCharacteristic(charac);
+        Log.d("statuss", status + "   " + distance + " distance");
     }
     public void SendTurnDirections(int turn){
         UUID service = UUID.fromString("5F935BC0-1C05-4719-B7C5-87528F9EAF48");
@@ -376,77 +378,128 @@ public class BluetoothLeService extends Service {
         BluetoothGattCharacteristic charac = returnCharacteristic(service, characteristic);
         charac.setValue(integerToHex(turn));
         boolean status = mBluetoothGatt.writeCharacteristic(charac);
+        Log.d("statuss", status + "   " + turn + " turn");
     }
     public void SendStreetName(String streetName){
         UUID service = UUID.fromString("5F935BC0-1C05-4719-B7C5-87528F9EAF48");
         UUID characteristic = UUID.fromString("5F930048-1C05-4719-B7C5-87528F9EAF48");
         BluetoothGattCharacteristic charac = returnCharacteristic(service, characteristic);
         boolean status = mBluetoothGatt.writeCharacteristic(charac);
+        Log.d("statuss", status + "   " + streetName + " street");
     }
     public void SendVelocity(int avgVelocity){
         UUID service = UUID.fromString("5f935bc0-1c05-4719-b7c5-87528f9eaf48");
         UUID characteristic = UUID.fromString("5F93C1AD-1C05-4719-B7C5-87528F9EAF48");
         BluetoothGattCharacteristic charac = returnCharacteristic(service, characteristic);
-
-        integerToHex(0);
-        integerToHex(10);
-        integerToHex(110);
-        integerToHex(540);
-        integerToHex(1310);
-        integerToHex(4140);
-        integerToHex(0121);
         byte[] byteArray = integerToHex(avgVelocity);
         charac.setValue(integerToHex(avgVelocity));
         boolean status = mBluetoothGatt.writeCharacteristic(charac);
-        Log.d("check", status + " after sent");
-        Log.d("check", "The velocity is: " + avgVelocity);
-        String array = "";
-        for (int i = 0; i < byteArray.length; i++ ){
-            array += byteArray[i] + " ";
-        }
-        Log.d("check", "The byte array we are sending is " + array);
-        Log.d("check", "Casting the value as int gets... " + new BigInteger(byteArray).intValue());
+        Log.d("statuss", status + "   " + avgVelocity + " velocity");
     }
     public void SendArrivalTime(int arrivalTime){
         UUID service = UUID.fromString("5F935BC0-1C05-4719-B7C5-87528F9EAF48");
         UUID characteristic = UUID.fromString("5F93158D-1C05-4719-B7C5-87528F9EAF48");
         BluetoothGattCharacteristic charac = returnCharacteristic(service, characteristic);
-        byte[] byteArray = integerToHex(arrivalTime);
+        String hex = Integer.toHexString(arrivalTime);
+
         charac.setValue(integerToHex(arrivalTime));
         boolean status = mBluetoothGatt.writeCharacteristic(charac);
+        Log.d("statuss", status + "   " + arrivalTime + " arrival");
     }
     public static byte[] hexStringToByteArray(String s) {
+        Log.d("hex", s);
         int len = s.length();
-        byte[] data = new byte[len/2];
-
-        for(int i = 0; i < len; i+=2){
-            data[i/2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i+1), 16));
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                    + Character.digit(s.charAt(i+1), 16));
         }
-
         return data;
     }
     private byte[] integerToHex(int num){
         int origin = num;
-        byte one = 48;
-        one = (byte)(num%10 + 48);
+        int one = 48;
+        one = (num%10);
+        byte first = turnToHex(one);
         num = (num > 0) ? num/10 : 0;
 
-        byte ten = 48;
+        int ten = 48;
 
-        ten = (byte)(num%10 + 48);
+        ten = (num%10);
         num = (num > 0) ? num/10 : 0;
+        byte second = turnToHex(ten);
 
-        byte hundred = 48;
+        int hundred = 48;
 
-        hundred = (byte)(num%10 + 48);
+        hundred = (num%10);
         num = (num > 0) ? num/10 : 0;
-
-        byte thousand = (byte)(num%10 + 48);
+        byte third = turnToHex(hundred);
+        int thousand =  (num%10);
+        byte fourth = turnToHex(thousand);
 
 
          Log.d("checkbyte","The Number is " + origin + " The bytes are " + thousand + " "  + hundred + " " + ten + " " + one);
+         Log.d("checkbyte","The Number is " + origin + " The bytes are " + fourth + " "  + third + " " + second + " " + first);
+        if (ten == 0 && hundred == 0 && thousand == 0){
+            return new byte[]{48, first};
+        }
+        if (hundred == 0 && thousand == 0){
+            return new byte[]{second, first};
+        }
+        if (thousand == 0){
+            return new byte[]{third, second, first};
+        }
+        return new byte[]{fourth, third, second, first};
+    }
+    public static  byte[] my_int_to_bb_le(int myInteger){
+        return ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putInt(myInteger).array();
+    }
 
-        return new byte[]{thousand, hundred, ten, one};
+    public static int my_bb_to_int_le(byte [] byteBarray){
+        return ByteBuffer.wrap(byteBarray).order(ByteOrder.LITTLE_ENDIAN).getInt();
+    }
+
+    public static  byte[] my_int_to_bb_be(int myInteger){
+        return ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(myInteger).array();
+    }
+
+    public static int my_bb_to_int_be(byte [] byteBarray){
+        return ByteBuffer.wrap(byteBarray).order(ByteOrder.BIG_ENDIAN).getInt();
+    }
+
+    public byte turnToHex(int num){
+        if (num==0){
+            return 0x30;
+        }
+        if (num==1){
+            return 0x31;
+        }
+        if (num==2){
+            return 0x32;
+        }
+        if (num==3){
+            return 0x33;
+        }
+        if (num==4){
+            return 0x34;
+        }
+        if (num==5){
+            return 0x35;
+        }
+        if (num==6){
+            return 0x36;
+        }
+        if (num==7){
+            return 0x37;
+        }
+        if (num==8){
+            return 0x38;
+        }
+        if (num==9){
+            return 0x39;
+        }
+        else
+            return 0x30;
     }
 
 }

@@ -590,12 +590,28 @@ public class practiceMapActivity extends Activity {
                         if (mBluetoothLeService != null && navigationManager.getNextManeuver() != null) {
 
                             mBluetoothLeService.SendArrivalTime((int) minutes);
-                             mBluetoothLeService.SendDistance((int) navigationManager.getDestinationDistance());
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            mBluetoothLeService.SendDistance((int) navigationManager.getDestinationDistance());
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                             //mBluetoothLeService.SendStreetName(navigationManager.getNextManeuver().getNextRoadName());
+
                             mBluetoothLeService.SendTurnDirections(navigationManager.getNextManeuver().getTurn().value());
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                             mBluetoothLeService.SendVelocity((int) navigationManager.getAverageSpeed());
                             try {
-                                Thread.sleep(5);
+                                Thread.sleep(1000);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }

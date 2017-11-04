@@ -42,22 +42,29 @@
 
         <activity android:name=".practiceMapActivity"></activity>
 
-        <meta-data
-            android:name="com.here.android.maps.appid"
-            android:value="t8tabRXzbEXjX1FchQ84" />
-        <meta-data
-            android:name="com.here.android.maps.apptoken"
-            android:value="f3lHDz37TzyyPHmxvMuqJw" />
-        <meta-data android:name="com.here.android.maps.license.key"
-            android:value="ZQysfQZOLuQT0DNbDm6qOUe2Cx59BMARqX3ra9bxMPlvhwZvZh6iu1cDFt3sPMM1GaewoHMD/vrqANb4jUDRV+3kzpsyCz95UEHivXkBGNair6K3KCrfvD0GCyQ81bfFhr9Dq2C7yYboTaSTA848QK667WIAjdXiADjBSlKCDkUSo5I/2b1KKJmZccpCieBbtbFfi7pAz5oK9KzZhVBUG+hUmsfjLS7Ic1CvMxzQJKVWvXWjA2Q1/E6QHDd+DQte0E1kL/a3xFzAUIpUDyWB7izQx58sygY86lAZYzDpi5x20D9hFFWZNPcTMry6KcVTHHDkWS8KqUvuGBnPPZ54WqMx6B/wlYx27C5sC6e5437cuB7tOTNJ/JKQuEV9xyvm20C8T2fzjVGnMdn/WfufMKYdBd8hTqktDvFKQx4XUAI5H8YeV4PquucUScehdZO3h8UCok5BQe5j8Tt3FDb3WVUkRzdwY/FslrsHoErSOMNB85XLj4kAWzy6SZce1h20/ihFAJgF41wJvM0/3/gjvYwRNUevOGS6yu0hbuVudr8GvqUpJ3jfRtGi4y9FKyvTkvxI0ua6abcRVn9ZBV1edIa7ko+rhiLtCXGdAQOJlqrEF4KgAiEbAF4jFQbEgX+DHxVs3svcrfxrh1IC2F8gv2iUpO0zrJP3VfceAe5UeAs="/>
+        <meta-data android:name="com.here.android.maps.appid" android:value="onQhDRGEBpQuumGJfVts"/>
+        <meta-data android:name="com.here.android.maps.apptoken" android:value="WP0rTVsyP4Wabh-rLOuhwA"/>
+        <meta-data android:name="com.here.android.maps.license.key" android:value="YxAKSlS0iuxh8el908aong/JRt1wbOO2i45Kzn4AXhdBAwDB532Nnx3qEXWATbHDqYOMaOSR/gxNbKvjJU02+GIK9NwXLG4u393sQz8r8SBubwJ/vHDO9JLEWGG/y/7C2Gs04lHd00FSoJ6rIJFDLgzzA9kO9Z3MfczsKjgp/NGJQGoC4uY5OyGK8g/SNSfwYv9Eqbs8UlaQGk7UZvaZNMMgRtW3X7F+tvy+YnLIvg+vVOwviKcwHSilzKSuwk16qj5NE76KSQbFIqjp81Dp98aapb/FyKr6184bcIzZnck9H37lSzobVOAOpqypqZYOP+EramAp22JaixItOhPf+W+KnFGr1IFWEY3mNfJN5fr9igRNsP7PHeLjiYg8dqFsr4XEJ+ZVC5AW4RbgKS6ow7N6IuCarKqL89dzbdHk7p72eOR+fMONcJ6ZIfPkr6D65koTpoyAjvZ4rQDH/RmvjQkF90hu6wEEMUmPye1kVAlLKl+sIHHQtYI6avBZUAN+yszyp//YK68nLdtttXfuvN5zj/raD1+D3eosxoAgcNJXJz7Bu1XCj0PypGJeJ3QrW7Pjnl1H6GNZDf03nP0fG99j0PpKll6F0aSkIYw0INWeJefLqzncQxp0KbLxaxzZLjIWbcYkt3dHxceYgE4ef0zomf3aWPd9PjphnnBYOtI="/>
 
-        <service android:exported="true" android:label="HereMapService" android:name="com.here.android.mpa.service.MapService" android:process="global.Here.Map.Service.v3">
-            <intent-filter>
-                <action android:name="com.here.android.mpa.service.MapService.v3">
-                </action>
-            </intent-filter>
-        </service>
+
+
+
+
+
+
+
+        -<service android:name="com.here.android.mpa.service.MapService" android:label="HereMapService" android:process="global.Here.Map.Service.v3" android:exported="true">
+
+
+        -<intent-filter>
+
+        <action android:name="com.here.android.mpa.service.MapService.v3"> </action>
+
+    </intent-filter>
+
+    </service>
 
     </application>
+
 
 </manifest>
